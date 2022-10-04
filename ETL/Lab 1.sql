@@ -45,17 +45,19 @@ GROUP by a2.Name, a.AlbumId
 --8. Para el género rock, saca el precio medio de los discos de todos los
 	--artistas. Ordena la consulta de mayor a menor en función de dicho
 	--precio medio.
-SELECT Album, Artista , AVG(TotalPrice) 
+SELECT Artista , AVG(TotalPrice) 
 FROM 
-(SELECT a.Title as Album, a2.Name as Artista, g.Name as Genero, SUM(t.UnitPrice) as TotalPrice
+(SELECT a.Title as Album, a2.Name as Artista, g.Name , SUM(t.UnitPrice) as TotalPrice
 FROM Album a 
 LEFT JOIN Track t  ON a.AlbumId  = t.AlbumId 
 RIGHT JOIN Artist a2 on a2.ArtistId = a.ArtistId
 LEFT JOIN Genre g on g.GenreId = t.GenreId
-WHERE g.Name = "Rock"
+WHERE g.Name LIKE  "%Rock%"
 GROUP by a.AlbumId 
 )
-ORDER by TotalPrice DESC 
+GROUP BY Artista
+ORDER by AVG(TotalPrice) DESC 
+
 
 
 
@@ -63,7 +65,7 @@ ORDER by TotalPrice DESC
 	--han comprado álbumes de U2.
 SELECT c.Country, COUNT(DISTINCT c.CustomerId) 
 from Customer c 
-LEFT JOIN Invoice i on i.CustomerId  = c.CustomerId 
+INNER JOIN Invoice i on i.CustomerId  = c.CustomerId 
 LEFT JOIN InvoiceLine il on il.InvoiceId = i.InvoiceId 
 LEFT JOIN Track t on t.TrackId = il.TrackId 
 LEFT JOIN Album a on a.AlbumId = t.AlbumId 
@@ -103,7 +105,14 @@ GROUP BY c.Country
 	
 	
 	--d. El top 10 de artistas en función del número de clientes.
-
+	SELECT a2.Name , COUNT(DISTINCT i.CustomerId)
+	FROM InvoiceLine il
+	LEFT JOIN Invoice i on i.InvoiceId = il.InvoiceId 
+	LEFT JOIN Track t on t.TrackId = il.TrackId 
+	LEFT JOIN Album a on a.AlbumId = t.AlbumId 
+	LEFT JOIN Artist a2 on a2.ArtistId = a.ArtistId 
+	GROUP BY a2.ArtistId 
+	ORDER BY COUNT(DISTINCT i.CustomerId) DESC LIMIT 10
 
 
 
